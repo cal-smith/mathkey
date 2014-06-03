@@ -2,11 +2,10 @@
 %%
 \s+          /*ignores whitespace*/
 /*greek symbols*/
-"alpha"      return 'alpha';
-"beta"       return 'beta';
-[0-9]        return 'num';
+"alpha"          return 'alpha';
+"beta"           return 'beta';
 /*binary operators*/
-[\+\-\/\*]+  return 'oper';
+[\+\-\/\*]+      return 'oper';
 /*binary relation*/
 /*logical symbols*/
 /*brackets*/
@@ -14,8 +13,10 @@
 /*math functions*/
 /*arrows*/
 /*fancy formatting math commands/functions*/
-[a-z]        /*return 'word'; ignore words for now, might need to handle them later*/
-<<EOF>>      return 'eof';
+[a-zA-Z0-9]+"^"[a-zA-Z0-9]+   return 'sup';
+[0-9]            return 'num';
+[a-z]            /*return 'word'; ignore words for now, might need to handle them later*/
+<<EOF>>          return 'eof';
 
 /lex
 
@@ -56,6 +57,27 @@ content
  | beta
     {
      $$ = "<mi>\u03B2</mi>";
+    }
+ | sup
+    {
+     if(!yy.lexer.supHandler) yy.lexer.supHandler = function(sup){
+     	sup = sup.split("^");
+     	var front = sup[0];
+     	var back = sup[1];
+     	if (front.match(/[0-9]+/)){
+     		front = "<mn>"+ front + "</mn>";
+     	} else {
+     		front = "<mi>"+ front + "</mi>";
+     	}
+     	if (back.match(/[0-9]+/)){
+     		back = "<mn>"+ back + "</mn>";
+     	} else {
+     		back = "<mi>"+ back + "</mi>";
+     	}
+     	var result = "<msup>" + front + back + "</msup>";
+     	return result;
+     };
+     $$ = yy.lexer.supHandler(yytext);
     }
  | word/*handler for words may or may not be needed*/
     {
