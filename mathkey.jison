@@ -26,7 +26,7 @@
 ascii
  : contents eof
     { 
-     return $1; 
+     return "<math><mstyle mathcolor='blue' fontfamily='serif' mathsize='1em' displaystyle='true'>" + $1 + "</mstyle></math>"; 
     }
  ;
 
